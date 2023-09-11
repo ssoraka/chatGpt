@@ -13,6 +13,7 @@ public class Config {
 
     @Bean
     public OpenAiService openAiService() {
+        System.out.println("токен: " + token);
         return new OpenAiService(token);
     }
 }
