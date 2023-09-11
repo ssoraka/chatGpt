@@ -4,6 +4,7 @@ import com.theokanning.openai.completion.CompletionChoice;
 import com.theokanning.openai.completion.CompletionRequest;
 import com.theokanning.openai.service.OpenAiService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +15,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Controller {
 
     @Value("${openai.chatgpt.model}")
     private String model;
 
-    private OpenAiService openAiService;
+    private final OpenAiService openAiService;
 
     @GetMapping()
     public ResponseEntity<String> get(String prompt) {

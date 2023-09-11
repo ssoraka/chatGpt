@@ -9,7 +9,7 @@ openai:
 
 logging:
   file:
-    name: ${log_path}
+    name: app.log
   level:
     root: INFO
     ru.telegram.bot: DEBUG
