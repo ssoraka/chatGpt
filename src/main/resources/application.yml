@@ -1,0 +1,19 @@
+server:
+  port: 8081
+
+openai:
+  chatgpt:
+    token: sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    model: gpt-3.5-turbo-0613
+
+
+logging:
+  file:
+    name: ${log_path}
+  level:
+    root: INFO
+    ru.telegram.bot: DEBUG
+    org.hibernate.SQL: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
