@@ -94,7 +94,7 @@
     </dependencies>
 
     <build>
-        <finalName>pushUpsBot</finalName>
+        <finalName>chatGpt</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
