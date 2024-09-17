@@ -11,5 +11,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("openai.chatgpt")
 public class GptProps {
     private String token;
-    private String model;
+    private String assistantId;
 }

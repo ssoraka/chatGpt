@@ -20,17 +20,5 @@ import java.util.stream.Collectors;
 public class Controller {
 
     private final GptProps gptProps;
-    private final OpenAiService openAiService;
 
-    @GetMapping()
-    public ResponseEntity<String> get() {
-        CompletionRequest completionRequest = CompletionRequest.builder()
-                .prompt("Somebody once told me the world is gonna roll me")
-                .model(gptProps.getModel())
-                .echo(true)
-                .build();
-        return ResponseEntity.ok(openAiService.createCompletion(completionRequest).getChoices().stream()
-                .map(CompletionChoice::toString)
-                .collect(Collectors.joining("\n")));
-    }
 }
