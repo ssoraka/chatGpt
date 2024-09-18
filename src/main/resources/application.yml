@@ -1,11 +1,28 @@
 server:
   port: 8081
+spring:
+  application:
+    name: ecom-local
+  dataSource:
+    url: jdbc:h2:./test;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ''
+    driverClassName: org.h2.Driver
+    dialect: H2
+  liquibase:
+    contexts: local
+    change-log: classpath:db/master.xml
+    enabled: true
 
 openai:
   chatgpt:
-    token: sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    model: gpt-3.5-turbo-0613
+    token: sk-xxxx
+    assistantId: asst_Y8oBs8BafpZwCaTntX5XUfyk
 
+telegram:
+  bot: chat_gpt3_test_bot
+  token: xxxx
+  enable: true
 
 logging:
   file:

@@ -1,39 +1,22 @@
 package ru.openai.gpt.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.theokanning.openai.OpenAiError;
-import com.theokanning.openai.OpenAiHttpException;
-import com.theokanning.openai.assistants.Assistant;
-import com.theokanning.openai.completion.chat.ChatCompletionRequest;
-import com.theokanning.openai.completion.chat.ChatFunction;
-import com.theokanning.openai.completion.chat.ChatFunctionCall;
-import com.theokanning.openai.runs.Run;
-import com.theokanning.openai.runs.RunCreateRequest;
-import com.theokanning.openai.service.*;
-import com.theokanning.openai.threads.Thread;
-import com.theokanning.openai.threads.ThreadRequest;
-import io.reactivex.Single;
-import okhttp3.ConnectionPool;
+import com.theokanning.openai.OpenAiResponse;
+import com.theokanning.openai.service.OpenAiService;
 import okhttp3.OkHttpClient;
 import org.springframework.stereotype.Service;
-import retrofit2.HttpException;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import ru.openai.gpt.api.OpenAiApiV2;
 import ru.openai.gpt.config.GptProps;
 import ru.openai.gpt.model.assistant.AssistantV2;
+import ru.openai.gpt.model.messages.MessageV2;
 import ru.openai.gpt.model.runs.RunCreateRequestV2;
 import ru.openai.gpt.model.runs.RunV2;
 import ru.openai.gpt.model.thread.ThreadRequestV2;
 import ru.openai.gpt.model.thread.ThreadV2;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class MyOpenAiService {
@@ -60,8 +43,16 @@ public class MyOpenAiService {
         return (ThreadV2)OpenAiService.execute(api.createThread(request));
     }
 
+    public OpenAiResponse<MessageV2> retrieveMessages(String threadId) {
+        return (OpenAiResponse<MessageV2>)OpenAiService.execute(api.listMessages(threadId));
+    }
+
     public RunV2 createRun(String threadId, RunCreateRequestV2 runCreateRequest) {
         return (RunV2)OpenAiService.execute(api.createRun(threadId, runCreateRequest));
+    }
+
+    public RunV2 retrieveRun(String threadId, String runId) {
+        return (RunV2)OpenAiService.execute(api.retrieveRun(threadId, runId));
     }
 
 }

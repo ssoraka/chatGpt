@@ -1,8 +1,10 @@
 package ru.openai.gpt.api;
 
+import com.theokanning.openai.OpenAiResponse;
 import io.reactivex.Single;
 import retrofit2.http.*;
 import ru.openai.gpt.model.assistant.AssistantV2;
+import ru.openai.gpt.model.messages.MessageV2;
 import ru.openai.gpt.model.runs.RunCreateRequestV2;
 import ru.openai.gpt.model.runs.RunV2;
 import ru.openai.gpt.model.thread.ThreadRequestV2;
@@ -19,8 +21,16 @@ public interface OpenAiApiV2 {
     Single<ThreadV2> createThread(@Body ThreadRequestV2 var1);
 
     @Headers({"OpenAI-Beta: assistants=v2"})
-    @GET("/v1/threads/{thread_id}")
-    Single<ThreadV2> retrieveThread(@Path("thread_id") String var1);
+    @GET("/v1/threads/{thread_id}/messages")
+    Single<OpenAiResponse<MessageV2>> listMessages(@Path("thread_id") String var1);
+
+    @Headers({"OpenAI-Beta: assistants=v2"})
+    @GET("/v1/threads/{thread_id}/messages")
+    Single<MessageV2> retrieveMessage(@Path("thread_id") String var1);
+
+    @Headers({"OpenAI-Beta: assistants=v2"})
+    @GET("/v1/threads/{thread_id}/messages/{message_id}")
+    Single<MessageV2> retrieveMessage(@Path("thread_id") String var1, @Path("message_id") String var2);
 
     @Headers({"OpenAI-Beta: assistants=v2"})
     @POST("/v1/threads/{thread_id}/runs")
