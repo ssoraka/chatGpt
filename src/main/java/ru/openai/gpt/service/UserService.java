@@ -19,4 +19,9 @@ public class UserService {
                         .telegramId(telegramId)
                         .build()));
     }
+
+    @Transactional
+    public UserEntity save(UserEntity user) {
+        return userRepository.save(user);
+    }
 }

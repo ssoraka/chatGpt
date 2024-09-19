@@ -19,6 +19,9 @@ import ru.openai.gpt.service.BusinessService;
 import ru.openai.gpt.service.MessageService;
 import ru.openai.gpt.service.UserService;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 @Slf4j
 @Setter
 @Component
@@ -74,11 +77,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
             return;
         } else if (update.hasMessage() && update.getMessage().hasText()) {
             String text = update.getMessage().getText();
+            String userName = update.getMessage().getFrom().getUserName();
             Integer telegramMessageId = sendMessage(chatId, "Команда обрабатывается");
 
-            UserEntity user = userService.findOrCreateByTelegramIdAndName(chatId, update.getMessage().getForwardSenderName());
-            MessageEntity message = messageService.create(user, text, telegramMessageId);
-            businessService.sendMessageAndReceiveAnswer(user, message);
+            businessService.processMessage(chatId, userName, telegramMessageId, text);
 
         }
     }

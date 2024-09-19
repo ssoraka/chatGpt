@@ -36,7 +36,7 @@ public class RunCreateRequestV2 {
     @JsonProperty("truncation_strategy")
     Object truncationStrategy;
     @JsonProperty("tool_choice")
-    String toolChoice;
+    Object toolChoice;
     @JsonProperty("parallel_tool_calls")
     Boolean parallelToolCalls;
     @JsonProperty("response_format")

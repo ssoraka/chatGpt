@@ -6,9 +6,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @EqualsAndHashCode
 @ToString
@@ -29,5 +31,13 @@ public class UserEntity extends BaseEntity {
     @ToString.Exclude
     @OneToMany(targetEntity = MessageEntity.class, mappedBy = "user",
             fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<MessageEntity> messages = new ArrayList<>();
+    private List<MessageEntity> messages;
+
+    public void addMessage(MessageEntity message) {
+        if (Objects.isNull(messages)) {
+            messages = new ArrayList<>();
+        }
+        message.setUser(this);
+        messages.add(message);
+    }
 }

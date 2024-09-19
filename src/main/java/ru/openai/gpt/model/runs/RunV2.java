@@ -57,7 +57,7 @@ public class RunV2 {
     @JsonProperty("truncation_strategy")
     private Object truncationStrategy;
     @JsonProperty("tool_choice")
-    private String toolChoice;
+    private Object toolChoice;
     @JsonProperty("parallel_tool_calls")
     private Boolean parallelToolCalls;
     @JsonProperty("response_format")

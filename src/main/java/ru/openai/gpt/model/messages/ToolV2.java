@@ -13,7 +13,10 @@ import ru.openai.gpt.model.files.FileSearch;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ToolV2 {
+    String id;
     AssistantToolsV2Enum type;
+    @JsonProperty("code_interpreter")
+    Object codeInterpreter;
     @JsonProperty("file_search")
     FileSearch fileSearch;
     AssistantFunction function;

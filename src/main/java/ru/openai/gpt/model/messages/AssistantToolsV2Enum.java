@@ -6,5 +6,7 @@ public enum AssistantToolsV2Enum {
     @JsonProperty("code_interpreter")
     CODE_INTERPRETER,
     @JsonProperty("file_search")
-    FILE_SEARCH;
+    FILE_SEARCH,
+    @JsonProperty("function")
+    FUNCTION;
 }
