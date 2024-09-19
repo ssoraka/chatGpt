@@ -67,6 +67,13 @@ public class BusinessService {
         AssistantV2 assistant = openAiService.retrieveAssistant(gptProps.getAssistantId());
         log.info("assistant: \n{}", assistant);
 
+        if (Objects.nonNull(user.getThreadId())) {
+            ThreadV2 thread = openAiService.retrieveThread(user.getThreadId());
+            if (Objects.isNull(thread)) {
+                user.setThreadId(null);
+            }
+        }
+
         if (Objects.isNull(user.getThreadId())) {
             ThreadV2 thread = openAiService.createThread(ThreadRequestV2.builder()
 //                .toolResources(assistant.getToolResources())

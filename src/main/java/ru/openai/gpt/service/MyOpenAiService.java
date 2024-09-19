@@ -42,6 +42,10 @@ public class MyOpenAiService {
         return (AssistantV2)OpenAiService.execute(api.retrieveAssistant(assistantId));
     }
 
+    public ThreadV2 retrieveThread(String threadId) {
+        return (ThreadV2)OpenAiService.execute(api.retrieveThread(threadId));
+    }
+
     public ThreadV2 createThread(ThreadRequestV2 request) {
         return (ThreadV2)OpenAiService.execute(api.createThread(request));
     }

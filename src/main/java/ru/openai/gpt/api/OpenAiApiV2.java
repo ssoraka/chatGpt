@@ -1,6 +1,7 @@
 package ru.openai.gpt.api;
 
 import com.theokanning.openai.OpenAiResponse;
+import com.theokanning.openai.threads.Thread;
 import io.reactivex.Single;
 import retrofit2.http.*;
 import ru.openai.gpt.model.assistant.AssistantV2;
@@ -19,6 +20,10 @@ public interface OpenAiApiV2 {
     @Headers({"Content-Type: application/json", "OpenAI-Beta: assistants=v2"})
     @GET("/v1/assistants/{assistant_id}")
     Single<AssistantV2> retrieveAssistant(@Path("assistant_id") String var1);
+
+    @Headers({"Content-Type: application/json", "OpenAI-Beta: assistants=v2"})
+    @GET("/v1/threads/{thread_id}")
+    Single<ThreadV2> retrieveThread(@Path("thread_id") String var1);
 
     @Headers({"Content-Type: application/json", "OpenAI-Beta: assistants=v2"})
     @POST("/v1/threads")
