@@ -2,6 +2,8 @@ package ru.openai.gpt.model.messages;
 
 import lombok.*;
 
+import java.util.List;
+
 @Builder
 @Data
 @NoArgsConstructor
@@ -9,4 +11,5 @@ import lombok.*;
 public class MessageRequestV2 {
     @NonNull String role;
     @NonNull String content;
+    List<Attachment> attachments;
 }

@@ -12,4 +12,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class GptProps {
     private String token;
     private String assistantId;
+    private String assistantCvsId;
 }

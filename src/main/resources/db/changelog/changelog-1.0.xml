@@ -17,7 +17,21 @@
             <column name="telegram_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="thread_id" type="varchar(50)">
+            <column name="action" type="varchar(20)" defaultValue="NONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="current_thread_id" type="UUID">
+                <constraints nullable="true"/>
+            </column>
+<!--            удалить-->
+            <column name="thread_id" type="text">
+                <constraints nullable="true"/>
+            </column>
+<!--            удалить-->
+            <column name="file_id" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="profile" type="text">
                 <constraints nullable="true"/>
             </column>
             <column name="created" type="timestamp" defaultValue="now()">
@@ -27,6 +41,37 @@
                 <constraints nullable="true"/>
             </column>
         </createTable>
+
+        <createTable tableName="threads" schemaName="${schema}">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="threads_pk"/>
+            </column>
+            <column name="thread_id" type="varchar(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="sender_id" type="UUID">
+                <constraints nullable="true"/>
+            </column>
+            <column name="receiver_id" type="UUID">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created" type="timestamp" defaultValue="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="threads"
+                                 baseColumnNames="sender_id"
+                                 constraintName="fk_threads_to_users1"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="threads"
+                                 baseColumnNames="receiver_id"
+                                 constraintName="fk_threads_to_users2"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id" />
 
         <createTable tableName="messages" schemaName="${schema}">
             <column name="id" type="UUID">
@@ -51,6 +96,11 @@
                 <constraints nullable="true"/>
             </column>
         </createTable>
+        <addForeignKeyConstraint baseTableName="messages"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_messages_to_users"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id" />
 
     </changeSet>
 
