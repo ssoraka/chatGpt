@@ -18,6 +18,7 @@ openai:
   chatgpt:
     token: sk-xxxx
     assistantId: asst_Y8oBs8BafpZwCaTntX5XUfyk
+    assistantCvsId: asst_KTffJpbUfyrds4feFtDAyPtf
 
 telegram:
   bot: chat_gpt3_test_bot
