@@ -102,6 +102,37 @@
                                  referencedTableName="users"
                                  referencedColumnNames="id" />
 
+        <createTable tableName="records" schemaName="${schema}">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" primaryKeyName="records_pk"/>
+            </column>
+            <column name="buyer_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="seller_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created" type="timestamp" defaultValue="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="records"
+                                 baseColumnNames="buyer_id"
+                                 constraintName="fk_records_to_buyer"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="records"
+                                 baseColumnNames="seller_id"
+                                 constraintName="fk_records_to_seller"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id" />
+
     </changeSet>
 
 </databaseChangeLog>

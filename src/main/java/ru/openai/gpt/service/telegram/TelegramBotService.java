@@ -23,13 +23,17 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+import ru.openai.gpt.constant.ApplicationConstants;
 import ru.openai.gpt.entity.UserEntity;
 import ru.openai.gpt.enums.Action;
 import ru.openai.gpt.service.BusinessService;
 import ru.openai.gpt.service.MessageService;
+import ru.openai.gpt.service.RecordService;
 import ru.openai.gpt.service.UserService;
 import ru.openai.gpt.utils.MessageUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -43,20 +47,22 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     private ReplyKeyboardMarkup menu = TelegramMenu.init();
     private InlineKeyboardMarkup upload = TelegramMenu.load();
-//    private ReplyKeyboardMarkup adminMenu = TelegramMenu.admin();
     private TelegramProperties properties;
     private UserService userService;
     private MessageService messageService;
     private BusinessService businessService;
+    private RecordService recordService;
 
     public TelegramBotService(TelegramProperties properties,
                               UserService userService,
-                              MessageService messageService
+                              MessageService messageService,
+                              RecordService recordService
                               ) {
         super(properties.getToken());
         this.properties = properties;
         this.userService = userService;
         this.messageService = messageService;
+        this.recordService = recordService;
     }
 
     public void init() throws TelegramApiException {
@@ -98,7 +104,52 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 UUID receiverId = UUID.fromString(data.replace(TelegramMenu.USER_CMD, ""));
                 businessService.startThread(chatId, receiverId);
                 delete(chatId, messageId);
-                sendMessage(chatId, "Что вас интересует?");
+                sendMessage(chatId, "Что вас интересует?", TelegramMenu.calendar());
+            } else if (update.getCallbackQuery().getData().matches(TelegramMenu.DATE_CMD + "/\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}:\\d{2}")) {
+                //запить в бд
+                String dateText = update.getCallbackQuery().getData().replace(TelegramMenu.DATE_CMD + "/", "");
+                LocalDateTime date = LocalDateTime.parse(dateText, ApplicationConstants.DATE_TIME_FORMATTER);
+                recordService.create(chatId, date);
+                List<LocalDateTime> busy = recordService.getRecordsTo(chatId);
+
+                editReplayMarkup(chatId, messageId, TelegramMenu.dayTable(date.toLocalDate(), busy)); //удаляем занятый слот
+                sendMessage(chatId,"Вы записаны на " + dateText, menu);
+
+            } else if (update.getCallbackQuery().getData().matches(TelegramMenu.DATE_CMD + "/\\d{2}-\\d{2}-\\d{4}")) {
+                // изменение месяца
+                String dateText = update.getCallbackQuery().getData().replace(TelegramMenu.DATE_CMD + "/", "");
+                LocalDate date = LocalDate.parse(dateText, ApplicationConstants.DATE_FORMATTER);
+
+                editReplayMarkup(chatId, messageId, TelegramMenu.calendar(date));
+            } else if (update.getCallbackQuery().getData().matches("\\d{2}-\\d{2}-\\d{4}")) {
+                LocalDate date = LocalDate.parse(update.getCallbackQuery().getData(), ApplicationConstants.DATE_FORMATTER);
+                List<LocalDateTime> busy = recordService.getRecordsTo(chatId);
+
+                editReplayMarkup(chatId, messageId, TelegramMenu.dayTable(date, busy));
+            } else if (update.getCallbackQuery().getData().equals(TelegramMenu.START_CMD)) {
+                delete(chatId, messageId);
+
+                sendMessage(chatId, "Добрый день. Что вас интересует?");
+            } else if (update.getCallbackQuery().getData().matches(TelegramMenu.RECORD_CMD + "/\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}:\\d{2}")) {
+                //выбор конкретной записи
+                String dateText = update.getCallbackQuery().getData().replace(TelegramMenu.RECORD_CMD + "/", "");
+                LocalDateTime date = LocalDateTime.parse(dateText, ApplicationConstants.DATE_TIME_FORMATTER);
+
+                editReplayMarkup(chatId, messageId, TelegramMenu.currentRecord(date));
+            } else if (update.getCallbackQuery().getData().matches(TelegramMenu.DELETE_RECORD_CMD + "/\\d{2}-\\d{2}-\\d{4} \\d{2}:\\d{2}:\\d{2}")) {
+                //удаление конкретной записи
+                String dateText = update.getCallbackQuery().getData().replace(TelegramMenu.DELETE_RECORD_CMD + "/", "");
+                LocalDateTime date = LocalDateTime.parse(dateText, ApplicationConstants.DATE_TIME_FORMATTER);
+
+                recordService.delete(chatId, date);
+                List<Pair<LocalDateTime, String>> records = recordService.getRecords(chatId);
+
+                editReplayMarkup(chatId, messageId, TelegramMenu.getRecords(records));
+            } else if (update.getCallbackQuery().getData().matches(TelegramMenu.RECORDS_CMD)) {
+                //получение всех наших записей
+                List<Pair<LocalDateTime, String>> records = recordService.getRecords(chatId);
+
+                editReplayMarkup(chatId, messageId, TelegramMenu.getRecords(records));
             }
             return;
         } else if (update.hasMessage() && update.getMessage().hasDocument()) {
@@ -113,10 +164,13 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
             UserEntity user = userService.findOrCreateByTelegramIdAndName(chatId, userName);
 
+            log.info("от пользователя {} поступил запрос {}", userName, text);
+
             switch (text) {
                 case TelegramMenu.START_CMD : sendMessage(chatId, "Добрый день. Что вас интересует?"); return;
                 case TelegramMenu.PROFILE_CMD : sendMessage(chatId, Objects.requireNonNullElse(user.getProfile(), "Вы не загрузили профиль"), upload); return;
                 case TelegramMenu.USERS_CMD : sendMessage(chatId, "Пользователи", getUserNames()); return;
+                case TelegramMenu.RECORDS_CMD : sendMessage(chatId, "Записи", getRecords(chatId)); return;
                 default: {
 
                     if (Action.UPLOAD.equals(user.getAction())) {
@@ -151,12 +205,30 @@ public class TelegramBotService extends TelegramLongPollingBot {
         return TelegramMenu.inline(userNames);
     }
 
+    private ReplyKeyboard getRecords(long chatId) {
+        List<Pair<LocalDateTime, String>> records = recordService.getRecords(chatId);
+        return TelegramMenu.getRecords(records);
+    }
 
     public void editMessage(Long chatId, Integer telegramMessageId, String text) {
         EditMessageText edit = EditMessageText.builder()
                 .chatId(chatId)
                 .messageId(telegramMessageId)
                 .text(text)
+                .build();
+
+        try {
+            execute(edit);
+        } catch (TelegramApiException e) {
+            log.error("Can't send telegram message", e);
+        }
+    }
+
+    public void editReplayMarkup(Long chatId, Integer telegramMessageId, InlineKeyboardMarkup markup) {
+        EditMessageReplyMarkup edit = EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(telegramMessageId)
+                .replyMarkup(markup)
                 .build();
 
         try {
